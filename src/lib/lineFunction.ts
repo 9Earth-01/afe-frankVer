@@ -343,6 +343,7 @@ export const postbackAccept = async (data: any) => {
                     await replyNoti({
                         replyToken: data.groupId,
                         userIdAccept: data.userIdAccept,
+                        title: "สถานะเคส",
                         message: "มีผู้รับเคสช่วยเหลือแล้ว",
                     });
                     return null;
@@ -355,7 +356,15 @@ export const postbackAccept = async (data: any) => {
                     await replyNoti({
                         replyToken: data.groupId,
                         userIdAccept: data.userIdAccept,
+                        title: "สถานะเคส",
                         message: "รับเคสช่วยเหลือแล้ว",
+                        buttons: [
+                            {
+                                type: 'postback',
+                                label: 'ปิดเคสช่วยเหลือ',
+                                data: `type=close&takecareId=${data.takecareId}&extenId=${data.extenId}&userLineId=${data.userLineId}`,
+                            },
+                        ],
                     });
                     return data.userLineId;
                 }
@@ -387,6 +396,7 @@ export const postbackClose = async (data: any) => {
                     await replyNoti({
                         replyToken: data.groupId,
                         userIdAccept: data.userIdAccept,
+                        title: "สถานะเคส",
                         message: "มีผู้ปิดเคสช่วยเหลือแล้ว",
                     });
                     return null;
@@ -411,6 +421,7 @@ export const postbackClose = async (data: any) => {
                     await replyNoti({
                         replyToken: data.groupId,
                         userIdAccept: data.userIdAccept,
+                        title: "สถานะเคส",
                         message: "ปิดเคสช่วยเหลือแล้ว",
                     });
                     return data.userLineId;

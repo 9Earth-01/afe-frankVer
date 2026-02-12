@@ -38,6 +38,16 @@ interface ReplyNoti {
     replyToken : string;
     message    : string;
     userIdAccept: string;
+    title?: string;
+    buttons?: ReplyNotiButton[];
+}
+
+interface ReplyNotiButton {
+    label: string;
+    type: "postback" | "uri" | "message";
+    data?: string;
+    uri?: string;
+    text?: string;
 }
 
 export const getUserProfile = async (userId: string) => {
@@ -75,14 +85,14 @@ const layoutBoxBaseline = (label: string, text: string, flex1 = 2, flex2 = 5) =>
     }
 }
 
-const header1 = () => {
+const header1 = (title = "แจ้งเตือนช่วยเหลือเพิ่มเติม") =>  {
     const h1 = {
         type: "text",
-        text: "แจ้งเตือนช่วยเหลือเพิ่มเติม",
+        text: title,
         contents: [
             {
                 type: "span",
-                text: "แจ้งเตือนช่วยเหลือเพิ่มเติม",
+                text: title,
                 color: "#FC0303",
                 size: "xl",
                 weight: "bold",
@@ -201,18 +211,6 @@ export const replyNotification = async ({
                                         style: 'primary',
                                         height: 'sm',
                                         margin: 'xxl',
-                                        color: '#4477CE',
-                                        action: {
-                                            type: 'postback',
-                                            label: 'ปิดเคสช่วยเหลือ',
-                                            data: `type=close&takecareId=${resTakecareperson.takecare_id}&extenId=${extendedHelpId}&userLineId=${resUser.users_line_id}`,
-                                        },
-                                    },
-                                    {
-                                        type: 'button',
-                                        style: 'primary',
-                                        height: 'sm',
-                                        margin: 'xxl',
                                         color: '#f10000',
                                         action: {
                                             type: 'uri',
@@ -260,7 +258,9 @@ export const replyNotification = async ({
 export const replyNoti = async ({
     replyToken,
     userIdAccept,
-    message
+    message,
+    title,
+    buttons = [],
 }: ReplyNoti) => {
     try {
         const profile = await getUserProfile(userIdAccept);
@@ -279,8 +279,8 @@ export const replyNoti = async ({
                             type: "box",
                             layout: "vertical",
                             contents: [
-                                header1()[0],
-                                header1()[1],
+                                header1(title)[0],
+                                header1(title)[1],
                                 {
                                     type: "text",
                                     text: `คุณ ${displayName}`,
@@ -296,7 +296,19 @@ export const replyNoti = async ({
                                     margin: "md",
                                     color: "#555555",
                                     size: "md"
-                                }
+                                },
+                                ...buttons.map((b) => ({
+                                    type: "button",
+                                    style: "primary",
+                                    height: "sm",
+                                    margin: "md",
+                                    action:
+                                        b.type === "postback"
+                                            ? { type: "postback", label: b.label, data: b.data || "" }
+                                            : b.type === "uri"
+                                                ? { type: "uri", label: b.label, uri: b.uri || "" }
+                                                : { type: "message", label: b.label, text: b.text || "" },
+                                })),
                             ]
                         }
                     }

@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import moment from 'moment';
 import prisma from '@/lib/prisma';
 const WEB_API = process.env.WEB_API_URL;
@@ -199,8 +199,8 @@ export const getFlexTemplate = (
         {
             type: 'text',
             text: config.detail,
-            size: 'md',
-            color: '#000000',
+            size: 'sm',
+            color: '#666666',
             wrap: true,
         },
         { type: 'separator', margin: 'md' },
@@ -210,7 +210,7 @@ export const getFlexTemplate = (
             margin: 'md',
             spacing: 'sm',
             contents: [
-                baseline('ชื่อผู้สูงอายุ', name),
+                baseline('ชื่อผู้มีภาวะพึ่งพิง', name),
                 baseline('พิกัดปัจจุบัน', `${latitude}, ${longitude}`),
                 baseline('เวลาแจ้งเตือน', timeText),
             ],
@@ -223,9 +223,10 @@ export const getFlexTemplate = (
             style: 'primary',
             height: 'sm',
             margin: 'xxl',
+            color: '#ff0000',  // เพิ่มบรรทัดนี้
             action: {
                 type: 'postback',
-                label: 'ส่งความช่วยเหลือเพิ่มเติม',
+                label: 'ส่งขอความช่วยเหลือเพิ่มเติม',
                 data: postbackData,
             },
         });
@@ -1177,8 +1178,8 @@ export const replyNotification = async ({
                                     contents: [
                                         {
                                             type: "span",
-                                            text: "แจ้งเตือนเขตปลอดภัย",
-                                            color: "#FC0303",
+                                            text: "สถานะเคส",
+                                            color: "#1976D2",
                                             size: "xl",
                                             weight: "bold",
                                             decoration: "none"
@@ -1261,8 +1262,8 @@ export const replyNotificationPostback = async ({
                                     contents: [
                                         {
                                             type: "span",
-                                            text: "แจ้งเตือนเขตปลอดภัย",
-                                            color: "#FC0303",
+                                            text: "สถานะเคส",
+                                            color: "#1976D2",
                                             size: "xl",
                                             weight: "bold",
                                             decoration: "none"
@@ -1310,21 +1311,21 @@ export const replyNotificationPostback = async ({
                                     margin: "xxl",
                                     action: {
                                         type: "postback",
-                                        label: "ส่งความช่วยเหลือเพิ่มเติม",
+                                        label: "ส่งขอความช่วยเหลือเพิ่มเติม",
                                         data: `userLineId=${replyToken}&takecarepersonId=${takecarepersonId}&type=${type}`,
                                     }
                                 },
                                 {
-                                            type: 'button',
-                                            color: "#1976D2",
-                                            style: 'primary',
-                                            height: 'sm',
-                                            action: {
-                                                type: 'uri',
-                                                label: 'ดูแผนที่จากระบบ',
-                                                //uri: `${WEB_API}/location?auToken=${userData.users_line_id}&idsafezone=${safezoneData.safezone_id}&idlocation=${locationData ? locationData.location_id : ''}`
-                                            }
-                                        },
+                                    type: 'button',
+                                    color: "#1976D2",
+                                    style: 'primary',
+                                    height: 'sm',
+                                    action: {
+                                        type: 'uri',
+                                        label: 'ดูแผนที่จากระบบ',
+                                        //uri: `${WEB_API}/location?auToken=${userData.users_line_id}&idsafezone=${safezoneData.safezone_id}&idlocation=${locationData ? locationData.location_id : ''}`
+                                    }
+                                },
                                 {
                                     type: "text",
                                     text: " ",
@@ -1609,7 +1610,7 @@ export const replyNotificationPostbackTemp = async ({
                                     margin: "xxl",
                                     action: {
                                         type: "postback",
-                                        label: "ส่งความช่วยเหลือเพิ่มเติม",
+                                        label: "ส่งขอความช่วยเหลือเพิ่มเติม",
                                         data: `userLineId=${replyToken}&takecarepersonId=${takecarepersonId}&type=${type}`,
                                     }
                                 },
@@ -1724,7 +1725,7 @@ export const replyNotificationPostbackfall = async ({
                                     margin: "xxl",
                                     action: {
                                         type: "postback",
-                                        label: "ส่งความช่วยเหลือเพิ่มเติม",
+                                        label: "ส่งขอความช่วยเหลือเพิ่มเติม",
                                         data: `userLineId=${replyToken}&takecarepersonId=${takecarepersonId}&type=${type}`,
                                     }
                                 },
@@ -1840,7 +1841,7 @@ export const replyNotificationPostbackHeart = async ({
                                     margin: "xxl",
                                     action: {
                                         type: "postback",
-                                        label: "ส่งความช่วยเหลือเพิ่มเติม",
+                                        label: "ส่งขอความช่วยเหลือเพิ่มเติม",
                                         data: `userLineId=${replyToken}&takecarepersonId=${takecarepersonId}&type=${type}`,
                                     }
                                 },
