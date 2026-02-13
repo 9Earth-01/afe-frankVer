@@ -125,21 +125,38 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             contents,
           });
 
-                    // ส่งข้อความไปยังกลุ่มเมื่อกลับเข้าเขตปลอดภัย
+          // ส่งข้อความไปยังกลุ่มเมื่อกลับเข้าเขตปลอดภัยและมีเคสช่วยเหลือเปิดอยู่
           if (calculatedStatus === 0 && previousStatus !== null && previousStatus !== 0) {
             try {
-              await replySafezoneBackMessage({
-                resUser: {
-                  users_fname: user.users_fname,
-                  users_sname: user.users_sname,
-                  users_tel1: user.users_tel1 || '0000000000',
+              // เช็คว่ามีเคสช่วยเหลือเปิดอยู่หรือไม่
+              const activeCase = await prisma.extendedhelp.findFirst({
+                where: {
+                  user_id: user.users_id,
+                  takecare_id: takecareperson.takecare_id,
+                  exted_closed_date: null, // เคสที่ยังไม่ปิด
                 },
-                resTakecareperson: {
-                  takecare_fname: takecareperson.takecare_fname,
-                  takecare_sname: takecareperson.takecare_sname,
-                  takecare_tel1: takecareperson.takecare_tel1 || '-',
-                },
+                orderBy: { exten_date: 'desc' },
               });
+
+              const hasActiveCase = Boolean(activeCase);
+
+              // ส่งข้อความเฉพาะเมื่อมีเคสเปิดอยู่
+              if (hasActiveCase) {
+                await replySafezoneBackMessage({
+                  resUser: {
+                    users_fname: user.users_fname,
+                    users_sname: user.users_sname,
+                    users_tel1: user.users_tel1 || '0000000000',
+                  },
+                  resTakecareperson: {
+                    takecare_fname: takecareperson.takecare_fname,
+                    takecare_sname: takecareperson.takecare_sname,
+                    takecare_tel1: takecareperson.takecare_tel1 || '-',
+                  },
+                });
+              } else {
+                console.log('ไม่มีเคสเปิดอยู่ - ข้ามการส่งข้อความกลับเข้าเขต');
+              }
             } catch (error) {
               console.error('Error sending safezone back message to group:', error);
             }
