@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '@/lib/prisma';
 import _ from 'lodash';
-import { replyNotificationPostback, replyNotificationPostbackTemp } from '@/utils/apiLineReply';
+import { replyNotificationPostbackTemp } from '@/utils/apiLineReply';
 import moment from 'moment';
 
 type Data = {
@@ -49,7 +49,6 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<D
                 }
             });
 
-            // เปรียบเทียบอุณหภูมิ
             const temperatureValue = Number(body.temperature_value);
             let calculatedStatus = Number(body.status);
 
@@ -61,9 +60,6 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<D
 
             const status = calculatedStatus;
 
-            let noti_time: Date | null = null;
-            let noti_status: number | null = null;
-
             const temp = await prisma.temperature_records.findFirst({
                 where: {
                     users_id: user.users_id,
@@ -74,7 +70,23 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<D
                 }
             });
 
-            if (status === 1 && (!temp || temp.noti_status !== 1 || moment().diff(moment(temp.noti_time), 'minutes') >= 5)) {
+            // Keep previous notification state by default, then override only when needed.
+            let noti_time: Date | null = temp?.noti_time ?? null;
+            let noti_status: number | null = temp?.noti_status ?? 0;
+
+            const minutesSinceLastNoti = temp?.noti_time
+                ? moment().diff(moment(temp.noti_time), 'minutes')
+                : null;
+
+            const shouldNotify =
+                status === 1 && (
+                    !temp ||
+                    temp.noti_status !== 1 ||
+                    !temp.noti_time ||
+                    (minutesSinceLastNoti !== null && minutesSinceLastNoti >= 5)
+                );
+
+            if (shouldNotify) {
                 const message = `คุณ ${takecareperson.takecare_fname} ${takecareperson.takecare_sname} \nอุณหภูมิร่างกายเกินค่าที่กำหนด`;
 
                 const replyToken = user.users_line_id || '';
@@ -90,13 +102,15 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<D
 
                 noti_status = 1;
                 noti_time = new Date();
+                console.log('Temperature notification sent');
+            } else if (status === 1) {
+                console.log(`Skip temperature notification: still in cooldown (${minutesSinceLastNoti ?? 0} minute(s))`);
             }
 
             if (status === 0) {
                 noti_status = 0;
                 noti_time = null;
                 console.log("อุณหภูมิอยู่ในระดับปกติ");
-                // console.log(`อุณหภูมิอยู่ในระดับปกติ (${temperatureValue} °C)`);
             }
 
             if (temp) {
