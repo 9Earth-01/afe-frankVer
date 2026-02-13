@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '@/lib/prisma';
 import { getFlexTemplate, pushFlexMessage } from '@/utils/apiLineReply';
+import { replySafezoneBackMessage } from '@/utils/apiLineGroup';
 import moment from 'moment';
 
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
@@ -123,6 +124,26 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             altText: 'แจ้งเตือน Safezone',
             contents,
           });
+
+                    // ส่งข้อความไปยังกลุ่มเมื่อกลับเข้าเขตปลอดภัย
+          if (calculatedStatus === 0 && previousStatus !== null && previousStatus !== 0) {
+            try {
+              await replySafezoneBackMessage({
+                resUser: {
+                  users_fname: user.users_fname,
+                  users_sname: user.users_sname,
+                  users_tel1: user.users_tel1 || '0000000000',
+                },
+                resTakecareperson: {
+                  takecare_fname: takecareperson.takecare_fname,
+                  takecare_sname: takecareperson.takecare_sname,
+                  takecare_tel1: takecareperson.takecare_tel1 || '-',
+                },
+              });
+            } catch (error) {
+              console.error('Error sending safezone back message to group:', error);
+            }
+          }
         }
       }
 
