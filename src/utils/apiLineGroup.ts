@@ -13,30 +13,30 @@ const LINE_HEADER = {
 };
 
 interface ReplyNotification {
-    resUser          : {
+    resUser: {
         users_related_borrow: string;
-        users_fname         : string;
-        users_sname         : string;
-        users_tel1          : string;
-        users_line_id       : string;
+        users_fname: string;
+        users_sname: string;
+        users_tel1: string;
+        users_line_id: string;
     };
     resTakecareperson: {
         takecare_fname: string;
         takecare_sname: string;
-        takecare_tel1 : string;
-        takecare_id   : number;
+        takecare_tel1: string;
+        takecare_id: number;
     };
-    resSafezone      : {};
-    extendedHelpId   : number;
-    locationData : {
-        locat_latitude : string;
+    resSafezone: {};
+    extendedHelpId: number;
+    locationData: {
+        locat_latitude: string;
         locat_longitude: string;
     };
 }
 
 interface ReplyNoti {
-    replyToken : string;
-    message    : string;
+    replyToken: string;
+    message: string;
     userIdAccept: string;
     title?: string;
     titleColor?: string;
@@ -52,16 +52,19 @@ interface ReplyNotiButton {
 }
 
 interface ReplySafezoneBackMessage {
-    resUser          : {
-        users_fname : string;
-        users_sname : string;
-        users_tel1  : string;
+    resUser: {
+        users_fname: string;
+        users_sname: string;
+        users_tel1: string;
+        users_line_id: string;
     };
     resTakecareperson: {
         takecare_fname: string;
         takecare_sname: string;
-        takecare_tel1 : string;
+        takecare_tel1: string;
+        takecare_id: number;
     };
+    extenId: number;
 }
 
 export const getUserProfile = async (userId: string) => {
@@ -99,7 +102,7 @@ const layoutBoxBaseline = (label: string, text: string, flex1 = 2, flex2 = 5) =>
     }
 }
 
-const header1 = (title = "แจ้งเตือนช่วยเหลือเพิ่มเติม") =>  {
+const header1 = (title = "แจ้งเตือนช่วยเหลือเพิ่มเติม") => {
     const h1 = {
         type: "text",
         text: title,
@@ -342,6 +345,7 @@ export const replyNoti = async ({
 export const replySafezoneBackMessage = async ({
     resUser,
     resTakecareperson,
+    extenId,
 }: ReplySafezoneBackMessage) => {
     try {
         // ค้นหากลุ่มที่เปิดใช้งานจากฐานข้อมูล
@@ -359,6 +363,12 @@ export const replySafezoneBackMessage = async ({
             const userTel = resUser.users_tel1 || '0000000000';
             const takecareFullName = `${resTakecareperson.takecare_fname || ''} ${resTakecareperson.takecare_sname || ''}`.trim() || 'ไม่ระบุชื่อ';
             const takecareTel = resTakecareperson.takecare_tel1 || '-';
+            const liffAcceptCallUrl = `https://liff.line.me/${process.env.NEXT_PUBLIC_LIFF_ID}` +
+                `?extenId=${encodeURIComponent(String(extenId))}` +
+                `&takecareId=${encodeURIComponent(String(resTakecareperson.takecare_id))}` +
+                `&userLineId=${encodeURIComponent(resUser.users_line_id)}` +
+                `&groupId=${encodeURIComponent(groupLineId)}` +
+                `&tel=${encodeURIComponent(userTel)}`;
 
             const requestData = {
                 to: groupLineId,
@@ -443,8 +453,8 @@ export const replySafezoneBackMessage = async ({
                                         color: '#ff0000',
                                         action: {
                                             type: 'uri',
-                                            label: 'โทรฉุกเฉินหาผู้ดูแล',
-                                            uri: `tel:${userTel}`
+                                            label: 'รับเคสและโทร',
+                                            uri: liffAcceptCallUrl
                                         },
                                     },
                                 ],
