@@ -215,12 +215,16 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             let data = postback;
             data.groupId = events.source.groupId;
             data.userIdAccept = events.source.userId;
+
+            // ✨ เพิ่ม closeType ถ้ามี
+            if (postback.closeType) {
+              data.closeType = postback.closeType;
+            }
+
             console.log("Data for Close Postback: ", data);
             const replyToken = await postbackClose(data);
             console.log("Reply Token for Close: ", replyToken);
-            if (replyToken) {
-              await replyNotification({ replyToken, message: 'ปิดเคสขอความช่วยเหลือแล้ว' });
-            }
+
           }
         }
 
