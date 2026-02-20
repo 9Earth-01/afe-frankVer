@@ -539,7 +539,7 @@ export const replySafezoneBackMessage = async ({
                                         color: '#ff0000',
                                         action: {
                                             type: 'uri',
-                                            label: 'รับเคสและโทร',
+                                            label: 'โทรหาผู้ดูแล',
                                             uri: liffAcceptCallUrl
                                         },
                                     },
@@ -561,4 +561,3 @@ export const replySafezoneBackMessage = async ({
         throw error;
     }
 }
-

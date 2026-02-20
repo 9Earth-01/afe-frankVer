@@ -103,7 +103,22 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
         const replyToken = user.users_line_id || '';
 
         if (replyToken) {
-          const timeText = moment().format('DD/MM/YYYY HH:mm');
+          const activeCaseForFlex = await prisma.extendedhelp.findFirst({
+            where: {
+              user_id: user.users_id,
+              takecare_id: takecareperson.takecare_id,
+              exted_closed_date: null,
+            },
+            orderBy: { exten_date: 'desc' },
+          });
+          const timeText = new Date().toLocaleString('th-TH', {
+            timeZone: 'Asia/Bangkok',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          });
           const name = `${takecareperson.takecare_fname} ${takecareperson.takecare_sname}`;
           const postbackData =
             calculatedStatus === 2
@@ -116,7 +131,10 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
             String(latitude),
             String(longitude),
             timeText,
-            postbackData
+            postbackData,
+            activeCaseForFlex?.exten_id,
+            safezone,
+            { users_line_id: user.users_line_id || '' }
           );
 
           await pushFlexMessage({
